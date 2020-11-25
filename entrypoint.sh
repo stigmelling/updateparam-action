@@ -9,5 +9,7 @@ NEW_TASK_INFO=$(aws ecs register-task-definition --region "$AWS_DEFAULT_REGION" 
 NEW_REVISION=$(echo $NEW_TASK_INFO | jq '.taskDefinition.revision')
 aws ecs update-service --cluster ${ECS_CLUSTER} \
                        --service ${SERVICE_NAME} \
-                       --task-definition ${TASK_FAMILY}:${NEW_REVISION}
+                       --task-definition ${TASK_FAMILY}:${NEW_REVISION} --force-new-deployment
+
+# Sets imaaetag parameter. This is required for our terraform code for this service
 aws ssm put-parameter --name /${SERVICE_NAME}/imagetag --type "String" --value ${GITHUB_SHA_SHORT} --overwrite
