@@ -16,6 +16,14 @@ The time we greeted you.
 
 ## Example usage
 
-uses: actions/hello-world-docker-action@v1
-with:
-  who-to-greet: 'Mona the Octocat'
+      - name: Update fargate
+        uses: stigmelling/fargate-action@v1
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: "eu-central-1"
+          IMAGE_REPO_NAME: "hello-world"
+          IMAGE_TAG: $GITHUB_SHA_SHORT
+          TASK_FAMILY: "Dev-DistAndPres-hello-service"
+          ECS_CLUSTER: "Dev-DistAndPres"
+          SERVICE_NAME: "HelloService"  
