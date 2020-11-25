@@ -3,14 +3,15 @@
 set -e
 echo $IMAGE_REPO_NAME
 echo $IMAGE_TAG
+echo $GITHUB_SHA_SHORT
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity | jq -r '.Account')
-ECR_IMAGE="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}"
+ECR_IMAGE="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${GITHUB_SHA_SHORT}"
 echo $ECR_IMAGE
-#TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition "$TASK_FAMILY" --region "$AWS_DEFAULT_REGION")
-#NEW_TASK_DEFINTIION=$(echo $TASK_DEFINITION | jq --arg IMAGE "$ECR_IMAGE" '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities)')
-#NEW_TASK_INFO=$(aws ecs register-task-definition --region "$AWS_DEFAULT_REGION" --cli-input-json "$NEW_TASK_DEFINTIION")
-#NEW_REVISION=$(echo $NEW_TASK_INFO | jq '.taskDefinition.revision')
-#aws ecs update-service --cluster ${ECS_CLUSTER} \
-#                       --service ${SERVICE_NAME} \
-#                       --task-definition ${TASK_FAMILY}:${NEW_REVISION}
-#aws ssm put-parameter --name ${SERVICE_NAME}-tag --type "String" --value ${IMAGE_TAG} --overwrite
+TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition "$TASK_FAMILY" --region "$AWS_DEFAULT_REGION")
+NEW_TASK_DEFINTIION=$(echo $TASK_DEFINITION | jq --arg IMAGE "$ECR_IMAGE" '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities)')
+NEW_TASK_INFO=$(aws ecs register-task-definition --region "$AWS_DEFAULT_REGION" --cli-input-json "$NEW_TASK_DEFINTIION")
+NEW_REVISION=$(echo $NEW_TASK_INFO | jq '.taskDefinition.revision')
+aws ecs update-service --cluster ${ECS_CLUSTER} \
+                       --service ${SERVICE_NAME} \
+                       --task-definition ${TASK_FAMILY}:${NEW_REVISION}
+aws ssm put-parameter --name ${SERVICE_NAME}-tag --type "String" --value ${IMAGE_TAG} --overwrite
