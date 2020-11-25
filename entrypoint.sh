@@ -10,4 +10,4 @@ NEW_REVISION=$(echo $NEW_TASK_INFO | jq '.taskDefinition.revision')
 aws ecs update-service --cluster ${ECS_CLUSTER} \
                        --service ${SERVICE_NAME} \
                        --task-definition ${TASK_FAMILY}:${NEW_REVISION}
-aws ssm put-parameter --name ${SERVICE_NAME}-tag --type "String" --value ${GITHUB_SHA_SHORT} --overwrite
+aws ssm put-parameter --name "${SERVICE_NAME}/imagetag" --type "String" --value ${GITHUB_SHA_SHORT} --overwrite
