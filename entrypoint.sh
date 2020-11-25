@@ -7,7 +7,7 @@ ECS_CLUSTER=Dev-DistAndPres
 SERVICE_NAME=HelloService
 
 set -e
-AWS_ACCOUNT_ID=$(aws sts get-caller-identity | jq '.Account')
+AWS_ACCOUNT_ID=$(aws sts get-caller-identity | jq -r '.Account')
 echo $AWS_ACCOUNT_ID
 ECR_IMAGE="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION}"
 TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition "$TASK_FAMILY" --region "$AWS_DEFAULT_REGION")
